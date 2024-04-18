@@ -11,12 +11,6 @@
             <uri>model://cafe</uri>
         </include>
 
-        <!-- Target Model -->
-        <include>
-            <uri>model://target</uri>
-            <pose>0 10 0 0 0 0</pose>
-        </include>
-
         <!-- Ground Plane -->
         <model name="ground_plane">
             <static>true</static>
