@@ -1,0 +1,70 @@
+<launch>
+  <!-- Define model type and initial robot position arguments -->
+  <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="x_pos" default="-3.0"/>
+  <arg name="y_pos" default="-8.0"/>
+  <arg name="z_pos" default="0.2"/>
+
+  <!-- Arguments for running mapping or localization -->
+  <arg name="mapping" default="false"/>
+  <arg name="localization" default="true"/>
+
+  <!-- Argument for map file -->
+  <!-- CAUTION: Change to your map file path-->
+  <arg name="map_file" default="$(find cpe631)/map/cafe.yaml"/>
+
+  <!-- Load the Gazebo world from the specified package -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find cpe631)/worlds/cafe.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!-- Load the robot model from xacro -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+
+  <!-- Spawn the TurtleBot in Gazebo -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+
+  <!-- Node for publishing robot state -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" value=""/>
+  </node>
+
+  <!-- Conditional group for mapping -->
+  <group if="$(arg mapping)">
+    <!-- Gmapping -->
+    <include file="$(find cpe631)/launch/gmapping.launch">
+        <arg name="model" value="$(arg model)"/>
+        <arg name="configuration_basename" value="turtlebot3_lds_2d.lua"/>
+    </include>
+    <!-- Rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find cpe631)/rviz/gmapping.rviz"/>
+  </group>
+
+  <!-- Conditional group for localization -->
+  <group if="$(arg localization)">
+    <!-- Node for pedestrian simulation -->
+    <node name="peds_simulation" pkg="cpe631" type="peds.py" output="screen"/>
+    <!-- Map server -->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+    <!-- AMCL -->
+    <include file="$(find cpe631)/launch/amcl.launch">
+    </include>
+    <!-- Rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find cpe631)/rviz/navigation.rviz"/>
+
+    <!-- Move base -->
+    <include file="$(find cpe631)/launch/move_base.launch">
+        <arg name="model" value="$(arg model)"/>
+    </include>
+  </group>
+
+</launch>
