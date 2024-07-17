@@ -39,16 +39,18 @@
     `roslaunch cpe631 cafe.launch`
 
    For mapping:
+   
    `roslaunch cpe631 cafe.launch mapping:=true localization:=false`
 
    To save the save the map: https://wiki.ros.org/map_server
    Edit the map_file path in cafe.launch
 
    For Navigation:
+   
    `roslaunch cpe631 cafe.launch mapping:=false localization:=true`
    
    
-7. Once you successfully run the node, you will see topic related to laser range finder, IMU and controlling the velocity of the robot. You can subscribe to and publish on these topics in your own controller to get the sensor information and publish the desired velocities to move the robot.
+8. Once you successfully run the node, you will see topic related to laser range finder, IMU and controlling the velocity of the robot. You can subscribe to and publish on these topics in your own controller to get the sensor information and publish the desired velocities to move the robot.
 
     Linear and angular velocity topic: 
 
