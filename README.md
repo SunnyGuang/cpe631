@@ -43,6 +43,7 @@
    `roslaunch cpe631 cafe.launch mapping:=true localization:=false`
 
    To save the save the map: https://wiki.ros.org/map_server
+   
    Edit the map_file path in cafe.launch
 
    For Navigation:
